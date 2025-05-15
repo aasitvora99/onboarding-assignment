@@ -31,3 +31,8 @@ curl -X POST http://localhost:4567/keep_alive/:key
 ```
 
 Note: Replace :key with the actual key value you want to unblock, delete, or keep alive.
+
+## Tests
+
+1. run `bundle i`
+2. run `rspec specs/key_store_specs.rb`
