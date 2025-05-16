@@ -4,7 +4,7 @@ import fs from 'fs';
 import { initSocket } from './sock.js';
 import { Server } from 'socket.io';
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 const __dirname = path.resolve();
 
 const server = http.createServer((req, res) => {
