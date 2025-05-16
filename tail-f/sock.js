@@ -3,7 +3,6 @@ import { LogReader } from "./logreader.js";
 
 export const initSocket = (server) => {
     const logReader = new LogReader();
-    console.log('logReader initialized', logReader);
 
     server.on("connection", async (socket) => {
         console.log("socket initialized")

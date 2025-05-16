@@ -9,6 +9,5 @@ socket.on("lastLines", (data) => {
 });
 
 socket.on("newLine", (data) => {
-    console.log(data)
     logContainer.innerText += data ;
 });
