@@ -1,0 +1,24 @@
+{
+  "name": "tail-f",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "mocha test/tail-f.test.js"
+  },
+  "author": "Aasit Vora",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "chai": "^5.2.0",
+    "mocha": "^11.2.2",
+    "nodemon": "^3.1.10",
+    "puppeteer": "^24.8.2"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "ws": "^8.18.2"
+  }
+}
