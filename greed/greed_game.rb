@@ -1,12 +1,10 @@
 class DiceSet
-  attr_reader :values
-
   def roll(num)
-    @values = Array.new(num) { rand(1..6) }
+    Array.new(num) { rand(1..6) }
   end
 end
 
-def score(dice)
+def calculate_roll_points(dice)
   counts = Hash.new(0)
   dice.each { |die| counts[die] += 1 }
 
@@ -24,13 +22,23 @@ def score(dice)
   total
 end
 
-def scoring_dice(dice)
-  original_score = score(dice)
-  dice.select.with_index do |_, i|
-    temp_dice = dice.dup
-    temp_dice.delete_at(i)
-    score(temp_dice) != original_score
+def get_scoring_dice(dice)
+  counts = Hash.new(0)
+  dice.each { |die| counts[die] += 1 }
+
+  scoring = []
+
+  (1..6).each do |num|
+    if counts[num] >= 3
+      3.times { scoring << num }
+      counts[num] -= 3
+    end
   end
+
+  scoring += [1] * counts[1]
+  scoring += [5] * counts[5]
+
+  scoring
 end
 
 class Player
@@ -49,7 +57,6 @@ class Game
   def initialize
     @players = []
     @dice_set = DiceSet.new
-    @final_round = false
     @final_round_started = false
     @final_round_triggered_by = nil
   end
@@ -74,8 +81,7 @@ class Game
         while continue
           roll = @dice_set.roll(remaining_dice)
           puts "#{player.name} rolls: #{roll.join(', ')}"
-          roll_score = score(roll)
-
+          roll_score = calculate_roll_points(roll)
           if roll_score == 0
             puts "Score in this round: 0 (bust)"
             turn_score = 0
@@ -83,7 +89,7 @@ class Game
           end
 
           turn_score += roll_score
-          scoring = scoring_dice(roll)
+          scoring = get_scoring_dice(roll)
           remaining_dice = roll.length - scoring.length
 
           puts "Score in this round: #{turn_score}"
@@ -91,7 +97,7 @@ class Game
 
           if remaining_dice == 0
             remaining_dice = 5
-            puts "All dice scored! Rolling all 5 again..."
+            puts "All dice scored! You get to roll all 5 again."
             next
           end
 
@@ -100,8 +106,8 @@ class Game
         end
 
         if !player.in_game && turn_score >= 300
-          player.in_game = true
-          player.total_score += turn_score
+            player.in_game = true
+            player.total_score += turn_score
         elsif player.in_game
           player.total_score += turn_score
         else
@@ -111,7 +117,6 @@ class Game
         puts "#{player.name}'s Total Score: #{player.total_score}"
 
         if player.total_score >= FINAL_SCORE && !@final_round_started
-          @final_round = true
           @final_round_triggered_by = player
           @final_round_started = true
           puts "\n#{player.name} has reached #{FINAL_SCORE} points! Final round begins..."
