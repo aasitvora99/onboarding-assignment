@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require_relative './greed_game'
 
 RSpec.describe 'Greed Game' do
