@@ -21,9 +21,24 @@ export class LogReader {
         const size = (await this.logfile.stat()).size;
         if (size === 0) return [];
 
-        const buffer = Buffer.alloc(size);
-        await this.logfile.read(buffer, 0, size, 0);
-        const lines = buffer.toString().trim().split("\n");
+        const chunkSize = 4096;
+        let position = size;
+        let leftover = '';
+        let lines = [];
+
+        while (position > 0 && lines.length < totalLines + 1) {
+            const readSize = Math.min(chunkSize, position);
+            position -= readSize;
+            const buffer = Buffer.alloc(readSize);
+            await this.logfile.read(buffer, 0, readSize, position);
+            const chunkLines = (buffer.toString() + leftover).split("\n");
+
+            leftover = chunkLines.shift();
+            lines = chunkLines.concat(lines);
+        }
+        if (leftover) {
+            lines.unshift(leftover);
+        }
         return lines.slice(-totalLines);
     }
 
