@@ -45,41 +45,30 @@ RSpec.describe Greed::Game do
       
       it 'handles player scoring scenarios correctly' do
         # Test case 1: Below 300 points
-        allow(Greed::Scoring).to receive(:calculate_roll_points).and_return(200)
-        allow(Greed::Scoring).to receive(:get_scoring_dice).and_return([5, 5, 5, 5])
-        
+        allow(Greed::Scoring).to receive(:analyze_roll).and_return({ score: 200, scoring_dice: [5, 5, 5, 5] })
         game.start
-        
         expect(player1.in_game).to be false
         expect(player1.total_score).to eq(0)
-        
+
         # Test case 2: Getting in the game with ≥300 points
-        allow(Greed::Scoring).to receive(:calculate_roll_points).and_return(350)
+        allow(Greed::Scoring).to receive(:analyze_roll).and_return({ score: 350, scoring_dice: [1, 5, 5] })
         player1.in_game = false
-        
         game.start
-        
         expect(player1.in_game).to be true
         expect(player1.total_score).to eq(350)
-        
+
         # Test case 3: Player busting
-        allow(Greed::Scoring).to receive(:calculate_roll_points).and_return(0)
+        allow(Greed::Scoring).to receive(:analyze_roll).and_return({ score: 0, scoring_dice: [] })
         player1.total_score = 500
-        
         game.start
-        
         expect(player1.total_score).to eq(500) # Score unchanged after bust
       end
       
       it 'triggers final round when threshold is reached' do
         player1.in_game = true
         player1.total_score = 2900
-        
-        allow(Greed::Scoring).to receive(:calculate_roll_points).and_return(200)
-        allow(Greed::Scoring).to receive(:get_scoring_dice).and_return([1, 1])
-        
+        allow(Greed::Scoring).to receive(:analyze_roll).and_return({ score: 200, scoring_dice: [1, 1] })
         game.start
-        
         expect(player1.total_score).to eq(3100)
         expect(game.instance_variable_get(:@final_round_started)).to be true
         expect(game.instance_variable_get(:@final_round_triggered_by)).to eq(player1)
@@ -90,19 +79,19 @@ RSpec.describe Greed::Game do
       it 'allows rolling all dice again when all dice score' do
         player1.in_game = true
         player1.total_score = 1000
-        
+
         first_roll = [1, 1, 5, 5, 5]
         second_roll = [2, 3, 4, 6, 1]
-        
+
         allow(dice_set).to receive(:roll).with(5).and_return(first_roll, second_roll)
-        allow(Greed::Scoring).to receive(:calculate_roll_points).and_return(600, 100)
-        allow(Greed::Scoring).to receive(:get_scoring_dice).and_return(first_roll, [1])
+        allow(Greed::Scoring).to receive(:analyze_roll).and_return(
+          { score: 600, scoring_dice: first_roll },
+          { score: 100, scoring_dice: [1] }
+        )
         allow(game).to receive(:gets).and_return("y\n", "n\n")
-        
         allow(game.instance_variable_get(:@players)).to receive(:each) { |&block| block.call(player1) }
-        
+
         game.start
-        
         expect(player1.total_score).to eq(1700)
       end
     end
@@ -111,12 +100,10 @@ RSpec.describe Greed::Game do
       it 'determines the winner correctly' do
         game.instance_variable_set(:@final_round_started, true)
         game.instance_variable_set(:@final_round_triggered_by, player2)
-        
         player1.total_score = 3500
         player2.total_score = 3200
-        
+
         expect(game).to receive(:puts).with(/The winner is Player 1 with 3500 points/)
-        
         game.start
       end
       
@@ -124,9 +111,8 @@ RSpec.describe Greed::Game do
         game.instance_variable_set(:@final_round_started, true)
         game.instance_variable_set(:@final_round_triggered_by, player1)
         game.instance_variable_set(:@players, [player1, player2])
-        
+
         expect(game.instance_variable_get(:@players)).to receive(:rotate!)
-        
         game.start
       end
     end
