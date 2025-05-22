@@ -20,7 +20,6 @@ class KeyStore
     end
 
     def get_available_key
-        purge_expired_keys
         key_value = nil
 
         @mutex.synchronize do
