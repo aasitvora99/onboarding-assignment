@@ -1,5 +1,5 @@
 class Key
-    attr_accessor :value, :blocked, :expiry_time, :last_keep_alive_time, :key_refreshed
+    attr_accessor :value, :blocked, :expiry_time, :last_keep_alive_time
 
     def initialize(value)
         @value = value
