@@ -29,6 +29,6 @@ class Key
     end
 
     def keep_alive_expired?
-        Time.now > @expired_time
+        Time.now > @expiry_time
     end
 end
