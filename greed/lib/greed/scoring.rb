@@ -2,41 +2,30 @@ module Greed
   module Scoring
     module_function
 
-    def calculate_roll_points(dice)
+    def analyze_roll(dice)
       counts = Hash.new(0)
       dice.each { |die| counts[die] += 1 }
 
       total = 0
+      scoring_dice = []
 
       (1..6).each do |num|
-        if counts[num] >= 3
+        count = counts[num]
+
+        if count >= 3
           total += num == 1 ? 1000 : num * 100
-          counts[num] -= 3
+          3.times { scoring_dice << num }
+          count -= 3
+        end
+
+        if num == 1 || num == 5
+          single_score = num == 1 ? 100 : 50
+          total += single_score * count
+          scoring_dice.concat([num] * count)
         end
       end
 
-      total += counts[1] * 100
-      total += counts[5] * 50
-      total
-    end
-
-    def get_scoring_dice(dice)
-      counts = Hash.new(0)
-      dice.each { |die| counts[die] += 1 }
-
-      scoring = []
-
-      (1..6).each do |num|
-        if counts[num] >= 3
-          3.times { scoring << num }
-          counts[num] -= 3
-        end
-      end
-
-      scoring += [1] * counts[1]
-      scoring += [5] * counts[5]
-
-      scoring
+      { score: total, scoring_dice: scoring_dice }
     end
   end
 end

@@ -31,9 +31,10 @@ module Greed
           continue = true
 
           while continue
+            analysis = Scoring.analyze_roll(roll)
             roll = @dice_set.roll(remaining_dice)
             puts "#{player.name} rolls: #{roll.join(', ')}"
-            roll_score = Scoring.calculate_roll_points(roll)
+            roll_score = roll_score = analysis[:score]
             if roll_score == 0
               puts "Score in this round: 0 (bust)"
               turn_score = 0
@@ -41,7 +42,7 @@ module Greed
             end
 
             turn_score += roll_score
-            scoring = Scoring.get_scoring_dice(roll)
+            scoring = analysis[:scoring_dice]
             remaining_dice = roll.length - scoring.length
 
             puts "Score in this round: #{turn_score}"
