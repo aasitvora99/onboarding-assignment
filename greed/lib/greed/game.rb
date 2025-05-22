@@ -31,8 +31,8 @@ module Greed
           continue = true
 
           while continue
-            analysis = Scoring.analyze_roll(roll)
             roll = @dice_set.roll(remaining_dice)
+            analysis = Scoring.analyze_roll(roll)
             puts "#{player.name} rolls: #{roll.join(', ')}"
             roll_score = roll_score = analysis[:score]
             if roll_score == 0
