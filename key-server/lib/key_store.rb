@@ -71,7 +71,7 @@ class KeyStore
     def purge_expired_keys
         @mutex.synchronize do
             @keys.each do |key_value, key|
-                if key.keep_alive_expired?
+                if key.expired?
                     @keys.delete(key_value)
                     @available_keys.delete(key_value)
                     @blocked_keys.delete(key_value)
@@ -82,5 +82,20 @@ class KeyStore
 
     def exists?(key_value)
         @keys.key?(key_value)
+    end
+
+    def release_stale_blocked_keys
+        @mutex.synchronize do
+            now = Time.now
+            @blocked_keys.each do |key_value, blocked_at|
+                if now - blocked_at > 60
+                    key = @keys[key_value]
+                    next unless key
+                    key.unblock!
+                    @available_keys.add(key_value)
+                end
+            end
+            @blocked_keys.delete_if { |_, blocked_at| now - blocked_at > 60 }
+        end
     end
 end

@@ -27,8 +27,4 @@ class Key
         @last_keep_alive_time = Time.now
         @expiry_time = Time.now + 300
     end
-
-    def keep_alive_expired?
-        Time.now > @expiry_time
-    end
 end

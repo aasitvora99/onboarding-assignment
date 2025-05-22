@@ -4,6 +4,14 @@ require_relative './lib/key_store'
 
 STORE = KeyStore.new
 
+Thread.new do
+  loop do
+    sleep 10
+    STORE.release_stale_blocked_keys
+    STORE.purge_expired_keys
+  end
+end
+
 before do
   content_type :json
 end
