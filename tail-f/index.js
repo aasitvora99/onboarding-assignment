@@ -25,9 +25,6 @@ const server = http.createServer((req, res) => {
     });
     res.setHeader('Content-Type', 'application/javascript');
     stream.pipe(res);
-  } else if (method === 'GET' && url === '/socket.io/socket.io.js') {
-    // Let socket.io handle this request
-    // Do nothing, socket.io will serve its own client
   } else {
     res.writeHead(404);
     res.end('Not Found');
